@@ -1,0 +1,19 @@
+replicaCount: 2
+
+image:
+  repository: 963108900846.dkr.ecr.us-east-1.amazonaws.com/hrgf-app
+  tag: v1
+  pullPolicy: Always
+
+service:
+  type: LoadBalancer
+  port: 80
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
