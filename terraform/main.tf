@@ -110,7 +110,10 @@ resource "aws_eks_cluster" "main" {
     endpoint_public_access  = true
     security_group_ids      = [aws_security_group.eks_cluster.id]
   }
-
+  access_config {
+    authentication_mode                         = "API_AND_CONFIG_MAP"
+    bootstrap_cluster_creator_admin_permissions = true
+  }
   depends_on = [aws_iam_role_policy_attachment.eks_cluster_policy]
 
   tags = {
@@ -208,4 +211,22 @@ resource "aws_ecr_lifecycle_policy" "app" {
       }
     }]
   })
+}
+
+# Create an Access Entry for the GitHub Actions IAM User
+resource "aws_eks_access_entry" "cicd_access" {
+  cluster_name      = aws_eks_cluster.main.name
+  principal_arn     = var.cicd_iam_user_arn
+  type              = "STANDARD"
+}
+
+# Grant Cluster Admin permissions to that User
+resource "aws_eks_access_policy_association" "cicd_admin" {
+  cluster_name      = aws_eks_cluster.main.name
+  policy_arn        = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+  principal_arn     = aws_eks_access_entry.cicd_access.principal_arn
+
+  access_scope {
+    type = "cluster"
+  }
 }

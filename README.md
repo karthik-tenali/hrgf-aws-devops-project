@@ -8,6 +8,43 @@ This project automates the deployment of a simple Nginx web application to AWS E
 
 ---
 
+
+## Project Structure
+
+```
+├── app/                    # Web application (index.html)
+│   └── index.html
+│
+├── docker/                 # Dockerfile and .dockerignore
+│   ├── Dockerfile
+│   └── .dockerignore
+│
+├── terraform/              # Infrastructure as Code
+│   ├── main.tf            # EKS cluster, VPC, ECR
+│   ├── variables.tf       # Input variables
+│   ├── outputs.tf         # Output values
+│   └── providers.tf       # AWS provider
+│
+├── helm/hrgf-app/         # Helm chart for deployment
+│   ├── Chart.yaml
+│   ├── values.yaml
+│   └── templates/
+│       ├── deployment.yaml      # Simple deployment
+│       └── service.yaml         # LoadBalancer service
+│
+├── k8s/
+│   ├── deployment.yaml      # Simple deployment
+│   └── service.yaml         # LoadBalancer service
+│
+├── .github/workflows/     # CI/CD pipeline
+│
+├── .gitignore     # gitignore files
+│
+└── README.md
+```
+
+---
+
 ## How to Run IaC Code
 
 ### Prerequisites
@@ -64,7 +101,6 @@ Pipeline runs automatically and deploys the application (~5-8 minutes).
 ### Cleanup
 ```bash
 helm uninstall hrgf-app
-kubectl delete svc hrgf-app
 cd terraform
 terraform destroy
 ```
@@ -79,7 +115,7 @@ terraform destroy
 - **LoadBalancer service** - Simpler than Ingress for demo purposes, auto-provisions AWS ELB
 
 **Application:**
-- **Nginx Alpine** - Minimal image size (~23MB), production-ready
+- **Nginx Alpine** - Minimal image size (~23MB)
 - **Helm over raw manifests** - Enables easy upgrades and rollbacks
 - **Resource limits** - Prevents resource contention, ensures cluster stability
 
@@ -109,41 +145,6 @@ kubectl get svc hrgf-app -o jsonpath='{.status.loadBalancer.ingress[0].hostname}
 
 ---
 
-## Project Structure
-
-```
-├── app/                    # Web application (index.html)
-│   └── index.html
-│
-├── docker/                 # Dockerfile and .dockerignore
-│   ├── Dockerfile
-│   └── .dockerignore
-│
-├── terraform/              # Infrastructure as Code
-│   ├── main.tf            # EKS cluster, VPC, ECR
-│   ├── variables.tf       # Input variables
-│   ├── outputs.tf         # Output values
-│   └── providers.tf       # AWS provider
-│
-├── helm/hrgf-app/         # Helm chart for deployment
-│   ├── Chart.yaml
-│   ├── values.yaml
-│   └── templates/
-│       ├── deployment.yaml      # Simple deployment
-│       └── service.yaml         # LoadBalancer service
-│
-├── k8s/
-│   ├── deployment.yaml      # Simple deployment
-│   └── service.yaml         # LoadBalancer service
-│
-├── .github/workflows/     # CI/CD pipeline
-│
-├── .gitignore     # gitignore files
-│
-└── README.md
-```
-
----
 
 ## Quick Test Locally
 

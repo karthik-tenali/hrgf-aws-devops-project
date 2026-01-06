@@ -57,3 +57,9 @@ variable "ecr_repository_name" {
   type        = string
   default     = "hrgf-app"
 }
+
+variable "cicd_iam_user_arn" {
+  description = "IAM User ARN for GitHub Actions CI/CD"
+  type        = string
+  default     = "arn:aws:iam::963108900846:user/github-actions-hrgf"
+}
