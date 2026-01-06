@@ -33,13 +33,6 @@ aws eks update-kubeconfig --region us-east-1 --name hrgf-eks-cluster
 kubectl get nodes
 ```
 
-### Cleanup
-```bash
-helm uninstall hrgf-app
-kubectl delete svc hrgf-app
-cd terraform
-terraform destroy
-```
 
 ---
 
@@ -68,12 +61,20 @@ git push origin main
 
 Pipeline runs automatically and deploys the application (~5-8 minutes).
 
+### Cleanup
+```bash
+helm uninstall hrgf-app
+kubectl delete svc hrgf-app
+cd terraform
+terraform destroy
+```
+
 ---
 
 ## Design Choices
 
 **Infrastructure:**
-- **Public subnets only** - Eliminates NAT Gateway cost (~$32/month savings) while maintaining functionality for this demo
+- **Public subnets only** - Eliminates NAT Gateway cost while maintaining functionality for this demo
 - **2 t3.small nodes** - Smallest EKS-compatible instance type, balances cost and performance
 - **LoadBalancer service** - Simpler than Ingress for demo purposes, auto-provisions AWS ELB
 
@@ -88,10 +89,9 @@ Pipeline runs automatically and deploys the application (~5-8 minutes).
 - **ECR registry** - Native AWS integration, faster image pulls from EKS
 
 **Cost Optimization:**
-- 15GB disk per node (reduced from 20GB default)
+- 30GB disk for better performance
 - ECR lifecycle policy (keeps only last 5 images)
 - Minimal architecture for demo purposes
-- **Estimated cost:** ~$28-30 for 7 days
 
 ---
 
@@ -113,18 +113,33 @@ kubectl get svc hrgf-app -o jsonpath='{.status.loadBalancer.ingress[0].hostname}
 
 ```
 ├── app/                    # Web application (index.html)
+│   └── index.html
+│
 ├── docker/                 # Dockerfile and .dockerignore
+│   ├── Dockerfile
+│   └── .dockerignore
+│
 ├── terraform/              # Infrastructure as Code
 │   ├── main.tf            # EKS cluster, VPC, ECR
 │   ├── variables.tf       # Input variables
 │   ├── outputs.tf         # Output values
 │   └── providers.tf       # AWS provider
+│
 ├── helm/hrgf-app/         # Helm chart for deployment
 │   ├── Chart.yaml
 │   ├── values.yaml
 │   └── templates/
-├── k8s/                   # Alternative K8s manifests
+│       ├── deployment.yaml      # Simple deployment
+│       └── service.yaml         # LoadBalancer service
+│
+├── k8s/
+│   ├── deployment.yaml      # Simple deployment
+│   └── service.yaml         # LoadBalancer service
+│
 ├── .github/workflows/     # CI/CD pipeline
+│
+├── .gitignore     # gitignore files
+│
 └── README.md
 ```
 
